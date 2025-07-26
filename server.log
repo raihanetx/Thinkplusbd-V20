@@ -1,7 +1,5 @@
-127.0.0.1 - - [26/Jul/2025 12:57:58] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [26/Jul/2025 12:58:09] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [26/Jul/2025 12:58:09] code 404, message File not found
-127.0.0.1 - - [26/Jul/2025 12:58:09] "GET /product_images/desktopbanner.png HTTP/1.1" 404 -
-127.0.0.1 - - [26/Jul/2025 12:58:10] "GET /get_products.php HTTP/1.1" 200 -
-127.0.0.1 - - [26/Jul/2025 12:58:23] code 404, message File not found
-127.0.0.1 - - [26/Jul/2025 12:58:23] "GET /product_images/phnbanner.png HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jul/2025 13:52:06] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [26/Jul/2025 13:52:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [26/Jul/2025 13:52:19] code 404, message File not found
+127.0.0.1 - - [26/Jul/2025 13:52:19] "GET /product_images/desktopbanner.png HTTP/1.1" 404 -
+127.0.0.1 - - [26/Jul/2025 13:52:19] "GET /get_products.php HTTP/1.1" 304 -
