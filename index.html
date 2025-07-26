@@ -604,6 +604,70 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         .product-detail-actions .add-to-cart-detail { background-color: transparent; color: var(--primary-color); border: 2px solid var(--primary-color) !important; }
         .product-detail-actions .add-to-cart-detail:hover { background-color: rgba(143,135,241,0.1); border-color: var(--primary-color); filter: brightness(0.95); }
 
+        /* Expandable sections for mobile */
+        .expandable-section { margin-top: 1.5rem; }
+        .expandable-section h3 { font-size: 1.2rem; font-weight: 600; color: var(--primary-color); margin-bottom: 0.75rem; }
+        .expandable-content { line-height: 1.6; color: var(--text-color); }
+        .expandable-content.collapsed { 
+            display: -webkit-box; 
+            -webkit-line-clamp: 6; 
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+        }
+        .see-more-btn { 
+            background: none; 
+            border: none; 
+            color: var(--primary-color); 
+            font-weight: 600; 
+            cursor: pointer; 
+            margin-top: 0.5rem; 
+            padding: 0; 
+            text-decoration: underline;
+        }
+        .see-more-btn:hover { color: var(--primary-color); filter: brightness(0.8); }
+        
+        .reviews-list { margin-bottom: 1rem; }
+        .review-item { 
+            background: #f8f9fa; 
+            padding: 1rem; 
+            border-radius: 8px; 
+            margin-bottom: 0.75rem; 
+            border-left: 3px solid var(--primary-color);
+        }
+        .review-item.hidden { display: none; }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .review-author { font-weight: 600; color: var(--text-color); }
+        .review-date { font-size: 0.85rem; color: #666; }
+        .review-text { line-height: 1.5; color: var(--text-color); }
+        
+        .review-form { 
+            background: #f8f9fa; 
+            padding: 1rem; 
+            border-radius: 8px; 
+            margin-top: 1rem;
+            border: 1px solid #e9ecef;
+        }
+        .review-form h4 { margin-bottom: 0.75rem; color: var(--primary-color); }
+        .review-form textarea { 
+            width: 100%; 
+            min-height: 80px; 
+            padding: 0.75rem; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            resize: vertical;
+            font-family: inherit;
+        }
+        .review-form button { 
+            background: var(--primary-color); 
+            color: white; 
+            border: none; 
+            padding: 0.6rem 1.2rem; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
         .product-detail-tabs {
             margin-top: 2rem;
             border-bottom: 1px solid #ddd;
@@ -1120,18 +1184,18 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             .product-actions button { width: 100%; margin-bottom: 0.45rem; }
             .product-actions button:last-child { margin-bottom: 0; }
             .product-detail-container {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
+                display: flex;
+                flex-direction: column;
                 gap: 1rem;
             }
             .product-detail-main-image-container {
-                grid-column: 2 / 3;
-                grid-row: 1 / 2;
+                order: 1;
                 aspect-ratio: 4 / 3;
+                width: 100%;
             }
             .product-detail-info {
-                grid-column: 1 / 2;
-                grid-row: 1 / 2;
+                order: 2;
+                width: 100%;
             }
             .product-detail-title { white-space: normal; overflow: visible; text-overflow: initial; }
             .product-listings.container { padding-left: 0.9rem; padding-right: 0.9rem; padding-top: 0.45rem; padding-bottom: 0.45rem; }
@@ -2286,23 +2350,33 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             try {
                 const response = await fetch(`get_approved_reviews.php?product_id=${productId}`);
                 const reviews = await response.json();
+                allReviews = reviews; // Store all reviews globally
+                visibleReviewsCount = 4; // Reset visible count
+                
                 let reviewsHTML = '';
                 if (reviews.length > 0) {
-                    reviews.forEach(review => {
+                    reviews.forEach((review, index) => {
+                        const isHidden = index >= 4 ? 'hidden' : '';
                         reviewsHTML += `
-                            <div class="review">
-                                <div class="review-author">
-                                    <img src="https://i.postimg.cc/4NtztqPt/IMG-20250603-130207-removebg-preview-1.png" alt="User Avatar" class="review-avatar">
-                                    <span class="review-name">${review.name}</span>
+                            <div class="review-item ${isHidden}" data-review-id="${review.id || index}">
+                                <div class="review-header">
+                                    <span class="review-author">${review.name}</span>
+                                    <span class="review-date">${review.timestamp || 'Recently'}</span>
                                 </div>
-                                <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
-                                <p class="review-comment">${review.comment}</p>
-                                <div class="review-timestamp">${review.timestamp}</div>
+                                <div class="review-text">${review.comment}</div>
                             </div>
                         `;
                     });
+                    
+                    // Show "See more" button if there are more than 4 reviews
+                    if (reviews.length > 4) {
+                        const seeMoreBtn = document.getElementById('see-more-reviews');
+                        if (seeMoreBtn) {
+                            seeMoreBtn.style.display = 'block';
+                        }
+                    }
                 } else {
-                    reviewsHTML = '<p>No reviews yet.</p>';
+                    reviewsHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No reviews yet. Be the first to review this product!</p>';
                 }
                 container.innerHTML = reviewsHTML;
             } catch (error) {
@@ -2376,41 +2450,26 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                     </div>
                 </div>
 
-                <div class="product-detail-tabs">
-                    <div class="product-detail-tab active" data-tab="description">Description</div>
-                    <div class="product-detail-tab" data-tab="reviews">Reviews</div>
+                <div class="expandable-section">
+                    <h3>Description</h3>
+                    <div class="expandable-content collapsed" id="description-content">
+                        ${longDescription}
+                    </div>
+                    <button class="see-more-btn" onclick="toggleDescription()">...See more</button>
+                    
+                    <div class="review-form">
+                        <h4>Write a Review</h4>
+                        <textarea placeholder="Share your experience with this product..." id="review-text"></textarea>
+                        <button onclick="submitReview(${product.id})">Submit Review</button>
+                    </div>
                 </div>
 
-                <div id="description" class="product-detail-tab-content active expandable">
-                    <p class="expandable-content">${longDescription}</p>
-                    <button class="show-more-btn">Show More</button>
-                </div>
-
-                <div id="reviews" class="product-detail-tab-content expandable">
-                    <div id="reviews-container" class="expandable-content"></div>
-                    <button class="show-more-btn">View All Reviews</button>
-                    <form action="submit_review.php" method="POST" class="review-form" style="display: none;">
-                        <input type="hidden" name="product_id" value="${product.id}">
-                        <div class="form-group">
-                            <label for="name">Name:</label>
-                            <input type="text" name="name" id="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="rating">Rating:</label>
-                            <select name="rating" id="rating" required>
-                                <option value="5">5 Stars</option>
-                                <option value="4">4 Stars</option>
-                                <option value="3">3 Stars</option>
-                                <option value="2">2 Stars</option>
-                                <option value="1">1 Star</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="comment">Comment:</label>
-                            <textarea name="comment" id="comment" rows="4" required></textarea>
-                        </div>
-                        <button type="submit">Submit Review</button>
-                    </form>
+                <div class="expandable-section">
+                    <h3>Reviews</h3>
+                    <div class="reviews-list" id="reviews-container">
+                        <!-- Reviews will be loaded here -->
+                    </div>
+                    <button class="see-more-btn" id="see-more-reviews" onclick="showMoreReviews()" style="display: none;">...See more</button>
                 </div>
 
                 ${relatedProductsHTML}
@@ -2514,6 +2573,82 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             return `<div class="related-products-section"><div class="related-products-header"><h3 class="related-products-title">Related Products</h3></div><div class="related-products-grid">${relatedProductsHTML}</div></div>`;
         }
         function setupRelatedProductImages() { const relatedImages = document.querySelectorAll('.related-product-image-container img.image-fade-in'); relatedImages.forEach(img => { setupSingleImageLoading(img); }); }
+        
+        // Mobile product details expandable sections
+        function toggleDescription() {
+            const content = document.getElementById('description-content');
+            const btn = content.nextElementSibling;
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                btn.textContent = '...See less';
+            } else {
+                content.classList.add('collapsed');
+                btn.textContent = '...See more';
+            }
+        }
+        
+        let allReviews = [];
+        let visibleReviewsCount = 4;
+        
+        function showMoreReviews() {
+            const container = document.getElementById('reviews-container');
+            const seeMoreBtn = document.getElementById('see-more-reviews');
+            
+            // Show next 4 reviews
+            const nextReviews = allReviews.slice(visibleReviewsCount, visibleReviewsCount + 4);
+            nextReviews.forEach(review => {
+                const reviewElement = document.querySelector(`[data-review-id="${review.id}"]`);
+                if (reviewElement) {
+                    reviewElement.classList.remove('hidden');
+                }
+            });
+            
+            visibleReviewsCount += 4;
+            
+            // Hide button if all reviews are shown
+            if (visibleReviewsCount >= allReviews.length) {
+                seeMoreBtn.style.display = 'none';
+            }
+        }
+        
+        function submitReview(productId) {
+            const reviewText = document.getElementById('review-text').value.trim();
+            if (!reviewText) {
+                showToast('Please write a review before submitting.', 'error');
+                return;
+            }
+            
+            const reviewData = {
+                product_id: productId,
+                name: 'Anonymous', // You can add name field if needed
+                rating: 5, // Default rating, you can add rating selector
+                comment: reviewText
+            };
+            
+            fetch('submit_review.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(reviewData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Review submitted successfully!', 'success');
+                    document.getElementById('review-text').value = '';
+                    // Reload reviews
+                    fetchAndDisplayReviews(productId, document.getElementById('reviews-container'));
+                } else {
+                    showToast('Failed to submit review. Please try again.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting review:', error);
+                showToast('Failed to submit review. Please try again.', 'error');
+            });
+        }
         function handleProductCardBuyNow(productId) { const product = getProductById(productId); if (product) { const productForCart = { ...product }; if (product.category === 'subscription' && Array.isArray(product.durations) && product.durations.length > 0) { productForCart.price = parseFloat(product.durations[0].price); productForCart.selectedDurationLabel = product.durations[0].label; } else { productForCart.price = parseFloat(product.price); delete productForCart.selectedDurationLabel; } delete productForCart.currentSelectedPrice; cart = [{ ...productForCart, quantity: 1 }]; updateCart(); navigateTo('checkout', null, null, true); } }
         
         function updateCheckoutPageOrderSummary() {
